@@ -32,6 +32,23 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Find NebulaStream package
 find_package(NebulaStream REQUIRED)
 
+if (APPLE)
+    message(STATUS "Building on MEOS in nes-execution")
+    # Set the include and library directories for Homebrew (macOS)
+    set(MEOS_INCLUDE_DIR "/opt/homebrew/include" CACHE PATH "Path to MEOS include directory")
+    set(MEOS_PLUGIN_INCLUDE_DIR "/Users/marianaduarte/Desktop/nebulastream/nes-plugins/meos/include" CACHE PATH "Path to MEOS plugin include directory")
+    include_directories(SYSTEM ${MEOS_INCLUDE_DIR} ${MEOS_PLUGIN_INCLUDE_DIR})
+    link_directories(${MEOS_LIBRARY_DIR})
+
+else()
+    message(STATUS "Building on Linux")
+
+    # Default behavior for Linux
+    find_package(meos REQUIRED)
+    include_directories(SYSTEM ${MEOS_INCLUDE_DIR})
+    link_directories(${MEOS_LIBRARY_DIR})
+endif()
+
 # Try to find spdlog, but make it optional
 set(USE_SPDLOG TRUE)
 find_package(spdlog QUIET)
@@ -75,12 +92,34 @@ find_library(NebulaStream_COMMON_LIBRARY
         /usr/lib
 )
 
+# Find the window-types library (missing from the original build)
+find_library(NebulaStream_WINDOW_TYPES_LIBRARY
+    NAMES nes-window-types libnes-window-types
+    PATHS 
+        ${NEBULASTREAM_BUILD}/nes-window-types
+        ${NEBULASTREAM_BUILD}/lib
+        /usr/local/lib
+        /usr/lib
+)
+
+# Find additional NebulaStream libraries
+find_library(NebulaStream_DATA_TYPES_LIBRARY
+    NAMES nes-data-types libnes-data-types
+    PATHS 
+        ${NEBULASTREAM_BUILD}/nes-data-types
+        ${NEBULASTREAM_BUILD}/lib
+        /usr/local/lib
+        /usr/lib
+)
+
 # Link against NebulaStream libraries
 target_link_libraries(NebulaStreamC++Example 
     PRIVATE 
     NebulaStream::nes-client
     ${NebulaStream_OPERATORS_LIBRARY}
     ${NebulaStream_COMMON_LIBRARY}
+    ${NebulaStream_WINDOW_TYPES_LIBRARY}
+    ${NebulaStream_DATA_TYPES_LIBRARY}
 )
 
 if(USE_SPDLOG)
