@@ -13,6 +13,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Find NebulaStream package
 find_package(NebulaStream REQUIRED)
 
+# Find spdlog dependency
+find_package(spdlog REQUIRED)
+
 # Add executable
 add_executable(NebulaStreamC++Example query.cpp)
 
@@ -31,6 +34,7 @@ target_link_libraries(NebulaStreamC++Example
     PRIVATE 
     NebulaStream::nes-client
     ${NebulaStream_OPERATORS_LIBRARY}
+    spdlog::spdlog
 )
 
 # Add include directories explicitly
