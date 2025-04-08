@@ -32,8 +32,25 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Find NebulaStream package
 find_package(NebulaStream REQUIRED)
 
-# Find spdlog dependency
-find_package(spdlog REQUIRED)
+# Try to find spdlog, but make it optional
+set(USE_SPDLOG TRUE)
+find_package(spdlog QUIET)
+if(NOT spdlog_FOUND)
+    # On Ubuntu 22.04+, try libspdlog-dev package
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(SPDLOG QUIET spdlog)
+    endif()
+    
+    # If not found via pkg-config either, disable spdlog
+    if(NOT SPDLOG_FOUND)
+        message(STATUS "spdlog not found. If you need logging, install with:")
+        message(STATUS "  Ubuntu/Debian: sudo apt install libspdlog-dev")
+        message(STATUS "  Manually: Clone from https://github.com/gabime/spdlog")
+        message(STATUS "Disabling spdlog dependency for now...")
+        set(USE_SPDLOG FALSE)
+    endif()
+endif()
 
 # Add executable
 add_executable(NebulaStreamC++Example query.cpp)
@@ -64,8 +81,11 @@ target_link_libraries(NebulaStreamC++Example
     NebulaStream::nes-client
     ${NebulaStream_OPERATORS_LIBRARY}
     ${NebulaStream_COMMON_LIBRARY}
-    spdlog::spdlog
 )
+
+if(USE_SPDLOG)
+    target_link_libraries(NebulaStreamC++Example PRIVATE spdlog::spdlog)
+endif()
 
 # Add include directories explicitly
 if(DEFINED NebulaStream_INCLUDE_DIR)
@@ -86,4 +106,9 @@ else()
         ${NEBULASTREAM_ROOT}/nes-common/include
         ${NEBULASTREAM_BUILD}/include/nebulastream
     )
+endif()
+
+# Add compiler definition if spdlog is available
+if(USE_SPDLOG)
+    target_compile_definitions(NebulaStreamC++Example PRIVATE HAVE_SPDLOG)
 endif()
