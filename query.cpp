@@ -1,7 +1,14 @@
 #include <iostream>
 #include <memory>
 #include <string>
+
+// Include full paths to NebulaStream headers
 #include <Client/RemoteClient.hpp>
+#include <API/Query.hpp>
+#include <Client/QueryConfig.hpp>
+#include <Operators/LogicalOperators/Sinks/FileSinkDescriptor.hpp>
+
+using namespace NES;
 
 int main() {
     try {
@@ -18,10 +25,24 @@ int main() {
         
         if (connected) {
             std::cout << "Successfully connected to NebulaStream server!" << std::endl;
+            SchemaPtr schema = Schema::create()->addField("id", BasicType::UINT32);
+            auto success = client->addLogicalSource(schema, "sourceName");
+            if (!success) {
+                std::cerr << "Failed to add logical source" << std::endl;
+                return 1;
+            }
+            else{
+                std::cout << "Logical source added successfully" << std::endl;
+            }   
             
-            // Query phase will be added later once we confirm connection works
-            std::cout << "Connection test succeeded, query code will be added in the next step." << std::endl;
-            
+            NES::Query query = NES::Query::from("sourceName")
+                         .sink(FileSinkDescriptor::create("out.csv", "CSV_FORMAT", "APPEND"));
+
+            NES::Client::QueryConfig queryConfig;
+
+            auto queryId = client->submitQuery(query, queryConfig);
+            std::cout << "Query submitted with ID: " << queryId << std::endl;
+
         } else {
             std::cerr << "Failed to connect to NebulaStream server." << std::endl;
             return 1;
