@@ -1,0 +1,14 @@
+set(NebulaStream_VERSION 0.6.201)
+
+@PACKAGE_INIT@
+
+set_and_check(NebulaStream_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set_and_check(NebulaStream_LIB_DIR "@PACKAGE_LIB_INSTALL_DIR@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/NebulaStreamTargets.cmake")
+check_required_components(NebulaStream)
+
+# Provide the library targets
+if(NOT TARGET NebulaStream::nes-client)
+    include("${CMAKE_CURRENT_LIST_DIR}/NebulaStreamTargets.cmake")
+endif() 
