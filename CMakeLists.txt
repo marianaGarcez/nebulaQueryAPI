@@ -112,6 +112,16 @@ find_library(NebulaStream_DATA_TYPES_LIBRARY
         /usr/lib
 )
 
+# Find configurations library
+find_library(NebulaStream_CONFIGURATIONS_LIBRARY
+    NAMES nes-configurations libnes-configurations
+    PATHS 
+        ${NEBULASTREAM_BUILD}/nes-configurations
+        ${NEBULASTREAM_BUILD}/lib
+        /usr/local/lib
+        /usr/lib
+)
+
 # Link against NebulaStream libraries
 target_link_libraries(NebulaStreamC++Example 
     PRIVATE 
@@ -120,6 +130,7 @@ target_link_libraries(NebulaStreamC++Example
     ${NebulaStream_COMMON_LIBRARY}
     ${NebulaStream_WINDOW_TYPES_LIBRARY}
     ${NebulaStream_DATA_TYPES_LIBRARY}
+    ${NebulaStream_CONFIGURATIONS_LIBRARY}
 )
 
 if(USE_SPDLOG)
@@ -132,17 +143,23 @@ if(DEFINED NebulaStream_INCLUDE_DIR)
         PRIVATE
         ${NebulaStream_INCLUDE_DIR}
         ${NEBULASTREAM_ROOT}/nes-common/include
+        ${NEBULASTREAM_ROOT}/nes-configurations/include
+        ${NEBULASTREAM_ROOT}/nes-operators/include
         ${NEBULASTREAM_BUILD}/include/nebulastream
     )
     message(STATUS "Using include directories:")
     message(STATUS "  - ${NebulaStream_INCLUDE_DIR}")
     message(STATUS "  - ${NEBULASTREAM_ROOT}/nes-common/include")
+    message(STATUS "  - ${NEBULASTREAM_ROOT}/nes-configurations/include")
+    message(STATUS "  - ${NEBULASTREAM_ROOT}/nes-operators/include")
     message(STATUS "  - ${NEBULASTREAM_BUILD}/include/nebulastream")
 else()
     target_include_directories(NebulaStreamC++Example
         PRIVATE
         ${NEBULASTREAM_ROOT}/nes-client/include
         ${NEBULASTREAM_ROOT}/nes-common/include
+        ${NEBULASTREAM_ROOT}/nes-configurations/include
+        ${NEBULASTREAM_ROOT}/nes-operators/include
         ${NEBULASTREAM_BUILD}/include/nebulastream
     )
 endif()
@@ -151,3 +168,8 @@ endif()
 if(USE_SPDLOG)
     target_compile_definitions(NebulaStreamC++Example PRIVATE HAVE_SPDLOG)
 endif()
+
+# Add necessary compiler definitions for NebulaStream
+target_compile_definitions(NebulaStreamC++Example PRIVATE 
+    NES_COMPILE_TIME_LOG_LEVEL=0
+)
