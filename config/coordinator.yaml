@@ -12,6 +12,8 @@ restPort: 8081     # Port for REST API (default)
 worker:
   # Hostname for the internal worker run by the coordinator
   localWorkerHost: 127.0.0.1
+  remoteWorkerHost: 127.0.0.1
+  remoteWorkerPort: 4000
 
 # Logical source definitions
 logicalSources:
