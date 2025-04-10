@@ -24,6 +24,7 @@ include_directories(
     ${NEBULASTREAM_ROOT}/nes-util/include
     ${NEBULASTREAM_ROOT}/nes-core/include
     ${NEBULASTREAM_ROOT}/nes-expressions/include
+    ${NEBULASTREAM_ROOT}/nes-window-types/include
     ${NEBULASTREAM_BUILD}/include/nebulastream
 )
 
@@ -36,6 +37,9 @@ link_directories(
     ${NEBULASTREAM_BUILD}/nes-runtime
     ${NEBULASTREAM_BUILD}/nes-util
     ${NEBULASTREAM_BUILD}/nes-core
+    ${NEBULASTREAM_BUILD}/nes-expressions
+    ${NEBULASTREAM_BUILD}/nes-data-types
+    ${NEBULASTREAM_BUILD}/nes-window-types
 )
 
 # Client executable
@@ -47,6 +51,7 @@ target_link_libraries(NebulaStreamC++Example PRIVATE
     nes-operators
     nes-common
     nes-configurations
+    nes-window-types
     ${CMAKE_THREAD_LIBS_INIT}
 )
 

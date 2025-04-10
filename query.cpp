@@ -6,6 +6,7 @@
 
 // Include NebulaStream headers
 #include <API/QueryAPI.hpp>
+#include <API/Query.hpp>
 #include <API/WindowedQuery.hpp>
 #include <API/Windowing.hpp>
 #include <Operators/LogicalOperators/Windows/LogicalWindowDescriptor.hpp>
