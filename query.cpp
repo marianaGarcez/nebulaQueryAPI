@@ -5,12 +5,17 @@
 #include <thread>
 
 // Include NebulaStream headers
-#include <API/Expressions/Expressions.hpp>
-#include <API/Query.hpp>
+#include <API/QueryAPI.hpp>
+#include <API/WindowedQuery.hpp>
+#include <API/Windowing.hpp>
+#include <Operators/LogicalOperators/Windows/LogicalWindowDescriptor.hpp>
+#include <Types/TumblingWindow.hpp>
+#include <Types/WindowType.hpp>
+#include <Util/TimeMeasurement.hpp>
 #include <Client/ClientException.hpp>
 #include <Client/QueryConfig.hpp>
 #include <Client/RemoteClient.hpp>
-#include <Operators/LogicalOperators/Sinks/PrintSinkDescriptor.hpp>
+
 
 using namespace std;
 using namespace NES;
@@ -35,11 +40,19 @@ int main() {
             std::cout << "Available logical sources:" << std::endl;
             std::string sources = client->getLogicalSources();
             std::cout << sources << std::endl;
+
+            //     // Check if train is in maintenance area
+                    // teintersects(Attribute("longitude", BasicType::FLOAT64),
+                    //     Attribute("latitude", BasicType::FLOAT64),
+                    //     Attribute("timestamp", BasicType::UINT64)) == 1
             
             // Create a query using the logical source defined in the coordinator config
             const std::string sourceName = "gpsData";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
             Query query = Query::from(sourceName)
+                    .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Seconds(30)))
+                    // .project(Attribute("Code1"), Attribute("Code2"))
+                    .apply(Sum(Attribute("Code1")))
                     .sink(PrintSinkDescriptor::create());
                     
             std::cout << "Query created successfully." << std::endl;
