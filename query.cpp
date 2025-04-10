@@ -1,20 +1,18 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <map>
 #include <chrono>
 #include <thread>
-#include <filesystem>
 
-// Include full paths to NebulaStream headers
-#include <Client/RemoteClient.hpp>
+// Include NebulaStream headers
+#include <API/Expressions/Expressions.hpp>
 #include <API/Query.hpp>
-#include <API/Schema.hpp>
+#include <Client/ClientException.hpp>
 #include <Client/QueryConfig.hpp>
+#include <Client/RemoteClient.hpp>
 #include <Operators/LogicalOperators/Sinks/PrintSinkDescriptor.hpp>
-#include <Operators/LogicalOperators/Sources/CsvSourceDescriptor.hpp>
-#include <Identifiers/Identifiers.hpp>
 
+using namespace std;
 using namespace NES;
 
 int main() {
@@ -25,52 +23,58 @@ int main() {
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;
         
         // Create a client to test connection to the NebulaStream server
-        auto client = std::make_shared<NES::Client::RemoteClient>(coordinatorIp, coordinatorPort);
+        auto client = std::make_shared<Client::RemoteClient>(coordinatorIp, coordinatorPort, std::chrono::seconds(20), true);
         bool connected = client->testConnection();
         
         std::cout << "Connection test: " << (connected ? "successful" : "failed") << std::endl;
         
         if (connected) {
             std::cout << "Successfully connected to NebulaStream server!" << std::endl;
-
-            SchemaPtr sncb_schema = Schema::create()->addField("id", BasicType::UINT32)->addField("value", BasicType::UINT64);
             
-            auto csvSourceType = CSVSourceType::create("sncb", "sncbmerged");
-            csvSourceType->setFilePath(std::filesystem::path("selected_columns_df.csv"));
-            csvSourceType->setGatheringInterval(1);                      
-            csvSourceType->setSkipHeader(true);     
+            // Get existing logical sources - should now include gpsData from coordinator.yaml
+            std::cout << "Available logical sources:" << std::endl;
+            std::string sources = client->getLogicalSources();
+            std::cout << sources << std::endl;
             
-            // Use NullOutputSinkDescriptor for simpler testing
-            NES::Query query = NES::Query::from("sncb")
-                        .sink(PrintSinkDescriptor::create());
-
-            std::cout << "Query created successfully" << std::endl;
-
-            // Use the QueryConfig as shown in the documentation
-            NES::Client::QueryConfig queryConfig;
-            // Set the placement strategy to BottomUp 
+            // Create a query using the logical source defined in the coordinator config
+            const std::string sourceName = "gpsData";
+            std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
+            Query query = Query::from(sourceName)
+                    .sink(PrintSinkDescriptor::create());
+                    
+            std::cout << "Query created successfully." << std::endl;
+            
+            // Configure query execution
+            Client::QueryConfig queryConfig;
             queryConfig.setPlacementType(Optimizer::PlacementStrategy::TopDown);
-
-            std::cout << "Query config created successfully" << std::endl;
-
-            NES::QueryId queryId = client->submitQuery(query, queryConfig);
+            
+            // Submit the query
+            std::cout << "Submitting query..." << std::endl;
+            QueryId queryId = client->submitQuery(query, queryConfig);
             std::cout << "Query submitted with ID: " << queryId << std::endl;
             
             // Wait for the query to process some data
-            std::cout << "Waiting for query to process data..." << std::endl;
+            std::cout << "Waiting for query to process data (10 seconds)..." << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             
-            // Stop the query when done
-            // Note: Check the return type of stopQuery
-            // auto stopResult = client->stopQuery(queryId);
-            // std::cout << "Query stopped, result: " << (stopResult ? "success" : "failed") << std::endl;
-                
+            // Check query status
+            std::string status = client->getQueryStatus(queryId);
+            std::cout << "Query status: " << status << std::endl;
+            
+            // Stop the query
+            std::cout << "Stopping query..." << std::endl;
+            auto stopResult = client->stopQuery(queryId);
+            std::cout << "Query stopped, result: " << (stopResult ? "success" : "failed") << std::endl;
+            
         } else {
             std::cerr << "Failed to connect to NebulaStream server." << std::endl;
             return 1;
         }
         
         return 0;
+    } catch (const Client::ClientException& e) {
+        std::cerr << "Client Exception: " << e.what() << std::endl;
+        return 1;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

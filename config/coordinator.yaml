@@ -1,0 +1,53 @@
+# Coordinator Configuration
+
+# Log level: LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR
+logLevel: LOG_INFO
+
+# Network settings
+restIp: 0.0.0.0  # Listen on all interfaces for REST API
+coordinatorHost: 127.0.0.1 # Hostname for internal communication (use localhost)
+rpcPort: 4000      # Port for RPC communication with workers (default)
+restPort: 8081     # Port for REST API (default)
+
+worker:
+  # Hostname for the internal worker run by the coordinator
+  localWorkerHost: 127.0.0.1
+
+# Logical source definitions
+logicalSources:
+  - logicalSourceName: "gpsData"
+    fields:
+      - name: timestamp
+        type: UINT64
+      - name: id
+        type: UINT64
+      - name: Vbat
+        type: FLOAT64
+      - name: PCFA_mbar
+        type: FLOAT64
+      - name: PCFF_mbar
+        type: FLOAT64
+      - name: PCF1_mbar
+        type: FLOAT64
+      - name: PCF2_mbar
+        type: FLOAT64
+      - name: T1_mbar
+        type: FLOAT64
+      - name: T2_mbar
+        type: FLOAT64
+      - name: Code1
+        type: UINT64
+      - name: Code2
+        type: UINT64
+      - name: speed
+        type: FLOAT64
+      - name: latitude
+        type: FLOAT64
+      - name: longitude
+        type: FLOAT64
+
+# Optimizer settings (optional)
+# optimizer:
+#   queryMergerRule: "HashSignatureBasedPartialQueryMergerRule"
+#   queryBatchSize: 1
+#   enableQueryReconfiguration: true 
