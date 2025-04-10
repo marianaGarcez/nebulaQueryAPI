@@ -19,7 +19,7 @@ physicalSources:
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite
-      numberOfTuplesToProducePerBuffer: 100
+      numberOfTuplesToProducePerBuffer: 36 # Reduced to fit buffer size (40 * 96 bytes < 4096 bytes)
       gatheringInterval: 1000 # milliseconds
 
 # Optional: Resource configuration
