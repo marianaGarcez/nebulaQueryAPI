@@ -51,6 +51,13 @@ int main() {
             const std::string sourceName = "gpsData";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
             Query query = Query::from(sourceName)
+                    .filter(// Check if train is in maintenance area
+                    teintersects(Attribute("longitude", BasicType::FLOAT64),
+                        Attribute("latitude", BasicType::FLOAT64),
+                        Attribute("timestamp", BasicType::UINT64)) == 1
+                    && 
+                    // Only process records with valid equipment codes
+                    (Attribute("Code1") != 0 || Attribute("Code2") != 0))
                     .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Seconds(30)))
                     // .project(Attribute("Code1"), Attribute("Code2"))
                     .apply(Sum(Attribute("Code1")))

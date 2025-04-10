@@ -16,6 +16,7 @@ set(NEBULASTREAM_BUILD "${NEBULASTREAM_ROOT}/build")
 include_directories(
     ${NEBULASTREAM_ROOT}
     ${NEBULASTREAM_ROOT}/nes-client/include
+    ${NEBULASTREAM_ROOT}/nes-catalogs/include
     ${NEBULASTREAM_ROOT}/nes-common/include
     ${NEBULASTREAM_ROOT}/nes-operators/include
     ${NEBULASTREAM_ROOT}/nes-configurations/include
@@ -24,6 +25,7 @@ include_directories(
     ${NEBULASTREAM_ROOT}/nes-util/include
     ${NEBULASTREAM_ROOT}/nes-core/include
     ${NEBULASTREAM_ROOT}/nes-expressions/include
+    ${NEBULASTREAM_ROOT}/nes-execution/include
     ${NEBULASTREAM_ROOT}/nes-window-types/include
     ${NEBULASTREAM_BUILD}/include/nebulastream
 )
@@ -31,6 +33,7 @@ include_directories(
 # Link directories
 link_directories(
     ${NEBULASTREAM_BUILD}/nes-client
+    ${NEBULASTREAM_BUILD}/nes-catalogs
     ${NEBULASTREAM_BUILD}/nes-common
     ${NEBULASTREAM_BUILD}/nes-operators
     ${NEBULASTREAM_BUILD}/nes-configurations
@@ -38,6 +41,7 @@ link_directories(
     ${NEBULASTREAM_BUILD}/nes-util
     ${NEBULASTREAM_BUILD}/nes-core
     ${NEBULASTREAM_BUILD}/nes-expressions
+    ${NEBULASTREAM_BUILD}/nes-execution
     ${NEBULASTREAM_BUILD}/nes-data-types
     ${NEBULASTREAM_BUILD}/nes-window-types
 )
