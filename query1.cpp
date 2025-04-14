@@ -10,7 +10,7 @@
 #include <API/WindowedQuery.hpp>
 #include <API/Windowing.hpp>
 #include <Operators/LogicalOperators/Windows/LogicalWindowDescriptor.hpp>
-#include <Types/TumblingWindow.hpp>
+#include <Types/SlidingWindow.hpp>
 #include <Types/WindowType.hpp>
 #include <Util/TimeMeasurement.hpp>
 #include <Client/ClientException.hpp>
@@ -42,6 +42,7 @@ int main() {
             std::string sources = client->getLogicalSources();
             std::cout << sources << std::endl;
 
+            
             // Create a query using the logical source defined in the coordinator config
             const std::string sourceName = "sncb";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
@@ -53,10 +54,11 @@ int main() {
                     && 
                     // Only process records with valid equipment codes
                     (Attribute("Code1") != 0 || Attribute("Code2") != 0))
-                    .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Seconds(30)))
-                    // .project(Attribute("Code1"), Attribute("Code2"))
-                    .apply(Sum(Attribute("Code1")))
+                    .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)), 
+                                        Seconds(30), Seconds(30)))
+                    .apply(Avg(Attribute("speed")))
                     .sink(PrintSinkDescriptor::create());
+
                     
             std::cout << "Query created successfully." << std::endl;
             

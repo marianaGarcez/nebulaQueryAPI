@@ -11,7 +11,7 @@ dataPort: 4002            # Port for data transfer (default is 4001, must be uni
 
 # Physical source definitions
 physicalSources:
-  - logicalSourceName: gpsData  # Link to the logical source defined in coordinator.yaml
+  - logicalSourceName: sncb  # Link to the logical source defined in coordinator.yaml
     physicalSourceName: gpsCSV # Unique name for this physical source
     type: CSV_SOURCE          # Type of the source
     configuration:
@@ -21,6 +21,23 @@ physicalSources:
       numberOfBuffersToProduce: 0 # 0 means infinite
       numberOfTuplesToProducePerBuffer: 36 # Reduced to fit buffer size (40 * 96 bytes < 4096 bytes)
       gatheringInterval: 1000 # milliseconds
+
+  - logicalSourceName: highriskArea  # Link to the logical source defined in coordinator.yaml
+    physicalSourceName: highriskAreaCSV # Unique name for this physical source
+    type: CSV_SOURCE          # Type of the source
+    configuration:
+      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/high_risk_areas_ordered_unix.csv # Use absolute path
+      skipHeader: true
+      delimiter: ","
+
+
+  - logicalSourceName: weather  # Link to the logical source defined in coordinator.yaml
+    physicalSourceName: weatherCSV # Unique name for this physical source
+    type: CSV_SOURCE          # Type of the source
+    configuration:
+      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/weatherwithsynccoordinates.csv # Use absolute path
+      skipHeader: true
+      delimiter: ","
 
 # Optional: Resource configuration
 # numberOfSlots: 4 

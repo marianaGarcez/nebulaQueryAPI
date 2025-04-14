@@ -15,7 +15,7 @@ worker:
 
 # Logical source definitions
 logicalSources:
-  - logicalSourceName: "gpsData"
+  - logicalSourceName: "sncb"
     fields:
       - name: timestamp
         type: UINT64
@@ -23,17 +23,17 @@ logicalSources:
         type: UINT64
       - name: Vbat
         type: FLOAT64
-      - name: PCFA_mbar
+      - name: PCFA_bar
         type: FLOAT64
-      - name: PCFF_mbar
+      - name: PCFF_bar
         type: FLOAT64
-      - name: PCF1_mbar
+      - name: PCF1_bar
         type: FLOAT64
-      - name: PCF2_mbar
+      - name: PCF2_bar
         type: FLOAT64
-      - name: T1_mbar
+      - name: T1_bar
         type: FLOAT64
-      - name: T2_mbar
+      - name: T2_bar
         type: FLOAT64
       - name: Code1
         type: UINT64
@@ -46,8 +46,44 @@ logicalSources:
       - name: longitude
         type: FLOAT64
 
-# Optimizer settings (optional)
-# optimizer:
-#   queryMergerRule: "HashSignatureBasedPartialQueryMergerRule"
-#   queryBatchSize: 1
-#   enableQueryReconfiguration: true 
+  - logicalSourceName: "highriskArea"
+    fields:
+      - name: timestamp
+        type: UINT64
+      - name: latitude
+        type: FLOAT64
+      - name: longitude
+        type: FLOAT64
+
+  - logicalSourceName: "weather"
+    fields:
+      - name: timestamp
+        type: UINT64
+      - name: temperature
+        type: FLOAT64
+      - name: precipitation
+        type: FLOAT64
+      - name: rain
+        type: FLOAT64
+      - name: snowfall
+        type: FLOAT64
+      - name: snowfall_height
+        type: FLOAT64
+      - name: freezing_level_height
+        type: FLOAT64
+      - name: weather_code
+        type: UINT64
+      - name: wind_speed
+        type: FLOAT64
+      - name: wind_speed_80m
+        type: FLOAT64
+      - name: wind_direction_10m
+        type: FLOAT64
+      - name: wind_direction_80m
+        type: FLOAT64
+      - name: wind_gusts_10m
+        type: FLOAT64
+      - name: gps_lat
+        type: FLOAT64
+      - name: gps_lon
+        type: FLOAT64

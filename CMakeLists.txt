@@ -8,37 +8,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find required packages
 find_package(Threads REQUIRED)
 
-# Find NebulaStream Installation
-if(DEFINED ENV{NEBULASTREAM_ROOT})
-    set(NEBULASTREAM_ROOT "$ENV{NEBULASTREAM_ROOT}" CACHE PATH "Root directory of NebulaStream installation, found via environment variable.")
-    message(STATUS "Found NebulaStream root via environment variable NEBULASTREAM_ROOT: ${NEBULASTREAM_ROOT}")
-else()
-    set(NEBULASTREAM_ROOT "" CACHE PATH "Root directory of NebulaStream installation (e.g., /path/to/nebulastream)")
-    # Check if the variable was set (either by env var above or by user via -D)
-    if(NOT NEBULASTREAM_ROOT)
-        message(FATAL_ERROR "NebulaStream root directory not found. Please set the NEBULASTREAM_ROOT environment variable or pass -DNEBULASTREAM_ROOT=/path/to/nebula to CMake.")
-    else()
-        message(STATUS "Using NebulaStream root from CMake cache: ${NEBULASTREAM_ROOT}")
-    endif()
-endif()
-
-# Check if the specified directory exists
-if(NOT EXISTS "${NEBULASTREAM_ROOT}")
-    message(FATAL_ERROR "Specified NEBULASTREAM_ROOT does not exist: ${NEBULASTREAM_ROOT}")
-endif()
-
-# Set NebulaStream build path (assuming build is inside root)
+# Set NebulaStream paths - adjust these to match your installation
+set(NEBULASTREAM_ROOT "/media/psf/Home/Parallels/nebulastream")
 set(NEBULASTREAM_BUILD "${NEBULASTREAM_ROOT}/build")
-if(NOT EXISTS "${NEBULASTREAM_BUILD}")
-     message(FATAL_ERROR "NebulaStream build directory does not exist: ${NEBULASTREAM_BUILD}. Ensure NebulaStream is built in a 'build' subdirectory of NEBULASTREAM_ROOT.")
-endif()
-
-message(STATUS "Using NEBULASTREAM_BUILD: ${NEBULASTREAM_BUILD}")
 
 # Include directories
 include_directories(
     ${NEBULASTREAM_ROOT}
     ${NEBULASTREAM_ROOT}/nes-client/include
+    ${NEBULASTREAM_ROOT}/nes-catalogs/include
     ${NEBULASTREAM_ROOT}/nes-common/include
     ${NEBULASTREAM_ROOT}/nes-operators/include
     ${NEBULASTREAM_ROOT}/nes-configurations/include
@@ -47,13 +25,15 @@ include_directories(
     ${NEBULASTREAM_ROOT}/nes-util/include
     ${NEBULASTREAM_ROOT}/nes-core/include
     ${NEBULASTREAM_ROOT}/nes-expressions/include
+    ${NEBULASTREAM_ROOT}/nes-execution/include
     ${NEBULASTREAM_ROOT}/nes-window-types/include
-    ${NEBULASTREAM_BUILD}/include/nebulastream # Generated headers
+    ${NEBULASTREAM_BUILD}/include/nebulastream
 )
 
 # Link directories
 link_directories(
     ${NEBULASTREAM_BUILD}/nes-client
+    ${NEBULASTREAM_BUILD}/nes-catalogs
     ${NEBULASTREAM_BUILD}/nes-common
     ${NEBULASTREAM_BUILD}/nes-operators
     ${NEBULASTREAM_BUILD}/nes-configurations
@@ -61,15 +41,31 @@ link_directories(
     ${NEBULASTREAM_BUILD}/nes-util
     ${NEBULASTREAM_BUILD}/nes-core
     ${NEBULASTREAM_BUILD}/nes-expressions
+    ${NEBULASTREAM_BUILD}/nes-execution
     ${NEBULASTREAM_BUILD}/nes-data-types
     ${NEBULASTREAM_BUILD}/nes-window-types
 )
 
-# Client executable
-add_executable(NebulaStreamC++Example query.cpp)
+# Client executable for query.cpp
+add_executable(QueryTest query.cpp)
 
-# Link libraries for client
-target_link_libraries(NebulaStreamC++Example PRIVATE
+# Client executable for query1.cpp
+add_executable(Query1 query1.cpp)
+
+# Client executable for query2.cpp
+add_executable(Query2 query2.cpp)   
+
+# Client executable for query3.cpp
+add_executable(Query3 query3.cpp)
+
+# Client executable for query4.cpp
+add_executable(Query4 query4.cpp)
+
+# Client executable for query5.cpp
+add_executable(Query5 query5.cpp)
+
+# Link libraries for the first client
+target_link_libraries(QueryTest PRIVATE
     nes-client
     nes-operators
     nes-common
@@ -78,9 +74,76 @@ target_link_libraries(NebulaStreamC++Example PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
-# Compiler definitions
-target_compile_definitions(NebulaStreamC++Example PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+# Link libraries for the second client
+target_link_libraries(Query1 PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+)
 
-# Print status (already handled by messages above)
-# message(STATUS "NEBULASTREAM_ROOT: ${NEBULASTREAM_ROOT}") # Redundant
-# message(STATUS "NEBULASTREAM_BUILD: ${NEBULASTREAM_BUILD}") # Redundant
+# Link libraries for the third client
+target_link_libraries(Query2 PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+)
+
+target_link_libraries(Query3 PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+)
+
+target_link_libraries(Query4 PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations  
+    ${CMAKE_THREAD_LIBS_INIT}
+)
+
+target_link_libraries(Query5 PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+)
+
+# Compiler definitions for the first client
+target_compile_definitions(QueryTest PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the second client
+target_compile_definitions(Query1 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the third client
+target_compile_definitions(Query2 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the fourth client
+target_compile_definitions(Query3 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the fifth client
+target_compile_definitions(Query4 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the sixth client
+target_compile_definitions(Query5 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Print status
+message(STATUS "NEBULASTREAM_ROOT: ${NEBULASTREAM_ROOT}")
+message(STATUS "NEBULASTREAM_BUILD: ${NEBULASTREAM_BUILD}")
+message(STATUS "NEBULASTREAM_INCLUDE_DIR: ${NEBULASTREAM_ROOT}/nes-client/include")
+message(STATUS "NEBULASTREAM_BUILD_DIR: ${NEBULASTREAM_BUILD}")
+message(STATUS "NEBULASTREAM_LIB_DIR: ${NEBULASTREAM_BUILD}/lib")
+message(STATUS "NEBULASTREAM_INCLUDE_DIR: ${NEBULASTREAM_BUILD}/include")
+message(STATUS "NEBULASTREAM_LIB_DIR: ${NEBULASTREAM_BUILD}/lib")
+message(STATUS "NEBULASTREAM_INCLUDE_DIR: ${NEBULASTREAM_BUILD}/include")

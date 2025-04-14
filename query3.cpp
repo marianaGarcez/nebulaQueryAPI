@@ -10,7 +10,7 @@
 #include <API/WindowedQuery.hpp>
 #include <API/Windowing.hpp>
 #include <Operators/LogicalOperators/Windows/LogicalWindowDescriptor.hpp>
-#include <Types/TumblingWindow.hpp>
+#include <Types/SlidingWindow.hpp>
 #include <Types/WindowType.hpp>
 #include <Util/TimeMeasurement.hpp>
 #include <Client/ClientException.hpp>
@@ -22,6 +22,8 @@ using namespace std;
 using namespace NES;
 
 int main() {
+    const double slackMeters = 5.0;
+    const double slackDegrees = slackMeters / 111320.0; // 1 degree ≈ 111.32 km
     try {
         const std::string coordinatorIp = "127.0.0.1";
         const int coordinatorPort = 8081;
@@ -42,21 +44,18 @@ int main() {
             std::string sources = client->getLogicalSources();
             std::cout << sources << std::endl;
 
+            
             // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "sncb";
+            const std::string sourceName = "highriskArea";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
-            Query query = Query::from(sourceName)
-                    .filter(// Check if train is in maintenance area
-                    teintersects(Attribute("longitude", BasicType::FLOAT64),
-                        Attribute("latitude", BasicType::FLOAT64),
-                        Attribute("timestamp", BasicType::UINT64)) == 1
-                    && 
-                    // Only process records with valid equipment codes
-                    (Attribute("Code1") != 0 || Attribute("Code2") != 0))
-                    .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Seconds(30)))
-                    // .project(Attribute("Code1"), Attribute("Code2"))
-                    .apply(Sum(Attribute("Code1")))
-                    .sink(PrintSinkDescriptor::create());
+
+
+            auto query = Query::from("highriskArea")
+                            .filter(tedwithin(Attribute("longitude", BasicType::FLOAT64),
+                                        Attribute("latitude", BasicType::FLOAT64),
+                                        Attribute("timestamp", BasicType::UINT64)) == 1
+                                        && Attribute("timestamp", BasicType::UINT64) > 0)
+                            .sink(PrintSinkDescriptor::create());
                     
             std::cout << "Query created successfully." << std::endl;
             

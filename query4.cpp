@@ -10,7 +10,7 @@
 #include <API/WindowedQuery.hpp>
 #include <API/Windowing.hpp>
 #include <Operators/LogicalOperators/Windows/LogicalWindowDescriptor.hpp>
-#include <Types/TumblingWindow.hpp>
+#include <Types/SlidingWindow.hpp>
 #include <Types/WindowType.hpp>
 #include <Util/TimeMeasurement.hpp>
 #include <Client/ClientException.hpp>
@@ -22,6 +22,8 @@ using namespace std;
 using namespace NES;
 
 int main() {
+    const double slackMeters = 5.0;
+    const double slackDegrees = slackMeters / 111320.0; // 1 degree ≈ 111.32 km
     try {
         const std::string coordinatorIp = "127.0.0.1";
         const int coordinatorPort = 8081;
@@ -42,21 +44,31 @@ int main() {
             std::string sources = client->getLogicalSources();
             std::cout << sources << std::endl;
 
+            
             // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "sncb";
+            const std::string sourceName = "weather";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
-            Query query = Query::from(sourceName)
-                    .filter(// Check if train is in maintenance area
-                    teintersects(Attribute("longitude", BasicType::FLOAT64),
-                        Attribute("latitude", BasicType::FLOAT64),
-                        Attribute("timestamp", BasicType::UINT64)) == 1
-                    && 
-                    // Only process records with valid equipment codes
-                    (Attribute("Code1") != 0 || Attribute("Code2") != 0))
-                    .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Seconds(30)))
-                    // .project(Attribute("Code1"), Attribute("Code2"))
-                    .apply(Sum(Attribute("Code1")))
-                    .sink(PrintSinkDescriptor::create());
+
+
+            auto weatherQuery = Query::from("weather")
+                .filter(
+                    tedwithin(Attribute("gps_lon"), 
+                            Attribute("gps_lat"),
+                            Attribute("timestamp"))==1
+                )
+                .filter(
+                    Attribute("temperature") < 12.0 || 
+                    Attribute("temperature") > 16.0
+                )
+                .filter(
+                    Attribute("snowfall") >= 0.0 ||          
+                    Attribute("wind_speed") > 15.0 ||        // Higher than median wind speed
+                    Attribute("precipitation") > 0.1          // Match actual precipitation events
+                )
+                .map(Attribute("adjusted_speed_limit") = 15.0)
+                .sink(PrintSinkDescriptor::create());
+
+            
                     
             std::cout << "Query created successfully." << std::endl;
             
@@ -66,7 +78,7 @@ int main() {
             
             // Submit the query
             std::cout << "Submitting query..." << std::endl;
-            QueryId queryId = client->submitQuery(query, queryConfig);
+            QueryId queryId = client->submitQuery(weatherQuery, queryConfig);
             std::cout << "Query submitted with ID: " << queryId << std::endl;
             
             // Wait for the query to process some data
