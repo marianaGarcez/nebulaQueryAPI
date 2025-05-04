@@ -64,6 +64,12 @@ add_executable(Query4 query4.cpp)
 # Client executable for query5.cpp
 add_executable(Query5 query5.cpp)
 
+# Client executable for queryCFA.cpp
+add_executable(QueryCFA queryCFA.cpp)
+
+# Client executable for queryCFF.cpp
+add_executable(QueryCFF queryCFF.cpp)
+
 # Link libraries for the first client
 target_link_libraries(QueryTest PRIVATE
     nes-client
@@ -120,6 +126,23 @@ target_link_libraries(Query5 PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
+target_link_libraries(QueryCFA PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+    )
+
+target_link_libraries(QueryCFF PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+)
 # Compiler definitions for the first client
 target_compile_definitions(QueryTest PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 
@@ -137,6 +160,12 @@ target_compile_definitions(Query4 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 
 # Compiler definitions for the sixth client
 target_compile_definitions(Query5 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the seventh client
+target_compile_definitions(QueryCFA PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
+# Compiler definitions for the eighth client
+target_compile_definitions(QueryCFF PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 
 # Print status
 message(STATUS "NEBULASTREAM_ROOT: ${NEBULASTREAM_ROOT}")

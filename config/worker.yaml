@@ -39,6 +39,5 @@ physicalSources:
       skipHeader: true
       delimiter: ","
 
-# Optional: Resource configuration
-# numberOfSlots: 4 
+
 workerId: 2
