@@ -5,7 +5,7 @@ logLevel: LOG_INFO
 
 # Network settings
 restIp: 0.0.0.0  # Listen on all interfaces for REST API
-coordinatorHost: 127.0.0.1 # Hostname for internal communication (use localhost)
+coordinatorHost: 192.168.55.100 # Hostname for internal communication (VM IP)
 rpcPort: 4000      # Port for RPC communication with workers (default)
 restPort: 8081     # Port for REST API (default)
 

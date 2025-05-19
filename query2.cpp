@@ -23,7 +23,7 @@ using namespace NES;
 
 int main() {
     try {
-        const std::string coordinatorIp = "127.0.0.1";
+        const std::string coordinatorIp = "192.168.55.100";
         const int coordinatorPort = 8081;
         
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;
@@ -38,37 +38,40 @@ int main() {
             std::cout << "Successfully connected to NebulaStream server!" << std::endl;
             
             // Get existing logical sources - should now include sncb from coordinator.yaml
-            std::cout << "Available logical sources:" << std::endl;
-            std::string sources = client->getLogicalSources();
-            std::cout << sources << std::endl;
+            // std::cout << "Available logical sources:" << std::endl;
+            // std::string sources = client->getLogicalSources();
+            // std::cout << sources << std::endl;
 
             
             // Create a query using the logical source defined in the coordinator config
             const std::string sourceName = "sncb";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
+
+
             Query query = Query::from(sourceName)
                     .filter(
                     // Check if train is in a specific geographic area
-                    tpointatstbox(Attribute("longitude", BasicType::FLOAT64),
-                        Attribute("latitude", BasicType::FLOAT64),
-                        Attribute("timestamp", BasicType::UINT64)) == 1
-                    && 
                     // Only process records with valid speed and pressure
                     Attribute("speed") > 0 && Attribute("PCFA_bar") > 0
                     &&
                     //Show records with the highest noise level
                     Attribute("speed") * 0.5 + Attribute("PCFA_bar") * 0.5 > 2
                 )
+                .filter(tpointatstbox(Attribute("longitude", BasicType::FLOAT64),
+                        Attribute("latitude", BasicType::FLOAT64),
+                        Attribute("timestamp", BasicType::UINT64)) == 1)
                 .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Milliseconds(500)))
                 .apply(Avg(Attribute("speed")))
                 .sink(FileSinkDescriptor::create("query2.csv", "CSV_FORMAT", "APPEND"));
-
-  
+            
             std::cout << "Query created successfully." << std::endl;
             
             // Configure query execution
             Client::QueryConfig queryConfig;
             queryConfig.setPlacementType(Optimizer::PlacementStrategy::TopDown);
+            
+            // Start measuring execution time
+            auto startTime = std::chrono::high_resolution_clock::now();
             
             // Submit the query
             std::cout << "Submitting query..." << std::endl;
@@ -76,8 +79,8 @@ int main() {
             std::cout << "Query submitted with ID: " << queryId << std::endl;
             
             // Wait for the query to process some data
-            std::cout << "Waiting for query to process data (10 seconds)..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::cout << "Waiting for query to process data (20 seconds)..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(20));
             
             // Check query status
             std::string status = client->getQueryStatus(queryId);
@@ -86,7 +89,13 @@ int main() {
             // Stop the query
             std::cout << "Stopping query..." << std::endl;
             auto stopResult = client->stopQuery(queryId);
+            
+            // Stop measuring execution time
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+            
             std::cout << "Query stopped, result: " << (stopResult ? "success" : "failed") << std::endl;
+            std::cout << "Query execution time: " << duration.count() << " milliseconds" << std::endl;
             
         } else {
             std::cerr << "Failed to connect to NebulaStream server." << std::endl;

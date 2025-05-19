@@ -4,10 +4,10 @@
 logLevel: LOG_INFO
 
 # Network settings
-coordinatorHost: 127.0.0.1  # Hostname/IP of the coordinator (use localhost)
-localWorkerHost: 127.0.0.1  # Unique hostname for this worker (use localhost)
-rpcPort: 4001             # Port for RPC communication with coordinator (default is 4000, must be unique per worker)
-dataPort: 4002            # Port for data transfer (default is 4001, must be unique per worker)
+coordinatorHost: 192.168.55.100  # IP of the coordinator in Parallels VM
+localWorkerHost: 192.168.55.1    # IP of the worker (NVIDIA device)
+rpcPort: 4001                    # Port for RPC communication with coordinator
+dataPort: 4002                   # Port for data transfer
 
 # Physical source definitions
 physicalSources:
@@ -15,7 +15,7 @@ physicalSources:
     physicalSourceName: gpsCSV # Unique name for this physical source
     type: CSV_SOURCE          # Type of the source
     configuration:
-      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/selected_columns_df.csv # Use absolute path
+      filePath: /home/emma/nebulaQueryAPI/data/selected_columns_df.csv # Use absolute path
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite
@@ -26,7 +26,7 @@ physicalSources:
     physicalSourceName: highriskAreaCSV # Unique name for this physical source
     type: CSV_SOURCE          # Type of the source
     configuration:
-      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/high_risk_areas_ordered_unix.csv # Use absolute path
+      filePath: /home/emma/nebulaQueryAPI/data/high_risk_areas_ordered_unix.csv # Use absolute path
       skipHeader: true
       delimiter: ","
 
@@ -35,7 +35,7 @@ physicalSources:
     physicalSourceName: weatherCSV # Unique name for this physical source
     type: CSV_SOURCE          # Type of the source
     configuration:
-      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/weatherwithsynccoordinates.csv # Use absolute path
+      filePath: /home/emma/nebulaQueryAPI/data/weatherwithsynccoordinates.csv # Use absolute path
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite
@@ -46,7 +46,7 @@ physicalSources:
     physicalSourceName: nrokCSV # Unique name for this physical source
     type: CSV_SOURCE          # Type of the source
     configuration:
-      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/nrok5-VTC1030-NES.csv # Use absolute path
+      filePath: /home/emma/nebulaQueryAPI/data/nrok5-VTC1030-NES.csv # Use absolute path
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite
@@ -57,7 +57,7 @@ physicalSources:
     physicalSourceName: nrok5Oneday # Unique name for this physical source
     type: CSV_SOURCE          # Type of the source
     configuration:
-      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/nrok5-oneWorktime_ForNES.csv # Use absolute path
+      filePath: /home/emma/nebulaQueryAPI/data/nrok5-oneWorktime_ForNES.csv # Use absolute path
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite

@@ -25,7 +25,7 @@ int main() {
     const double slackMeters = 5.0;
     const double slackDegrees = slackMeters / 111320.0; // 1 degree ≈ 111.32 km
     try {
-        const std::string coordinatorIp = "127.0.0.1";
+        const std::string coordinatorIp = "192.168.55.100";
         const int coordinatorPort = 8081;
         
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;
@@ -39,10 +39,10 @@ int main() {
         if (connected) {
             std::cout << "Successfully connected to NebulaStream server!" << std::endl;
             
-            // Get existing logical sources - should now include sncb from coordinator.yaml
-            std::cout << "Available logical sources:" << std::endl;
-            std::string sources = client->getLogicalSources();
-            std::cout << sources << std::endl;
+            // // Get existing logical sources - should now include sncb from coordinator.yaml
+            // std::cout << "Available logical sources:" << std::endl;
+            // std::string sources = client->getLogicalSources();
+            // std::cout << sources << std::endl;
 
             
             // Create a query using the logical source defined in the coordinator config
@@ -74,14 +74,17 @@ int main() {
             Client::QueryConfig queryConfig;
             queryConfig.setPlacementType(Optimizer::PlacementStrategy::TopDown);
             
+            // Start measuring execution time
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
             // Submit the query
             std::cout << "Submitting query..." << std::endl;
             QueryId queryId = client->submitQuery(query, queryConfig);
             std::cout << "Query submitted with ID: " << queryId << std::endl;
             
             // Wait for the query to process some data
-            std::cout << "Waiting for query to process data (10 seconds)..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+         std::cout << "Waiting for query to process data (20 seconds)..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(20));
             
             // Check query status
             std::string status = client->getQueryStatus(queryId);
@@ -90,7 +93,13 @@ int main() {
             // Stop the query
             std::cout << "Stopping query..." << std::endl;
             auto stopResult = client->stopQuery(queryId);
+            
+            // Stop measuring execution time
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+            
             std::cout << "Query stopped, result: " << (stopResult ? "success" : "failed") << std::endl;
+            std::cout << "Query execution time: " << duration.count() << " milliseconds" << std::endl;
             
         } else {
             std::cerr << "Failed to connect to NebulaStream server." << std::endl;
