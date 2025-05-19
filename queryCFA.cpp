@@ -47,40 +47,25 @@ int main() {
 
             
             // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "sncb";
+            const std::string sourceName = "nrok5";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
 
 
 
-            // auto query = Query::from("sncb")
-            //             .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)), 
-            //                                     Seconds(30), Seconds(30)))
-            //             .apply(
-            //                 Min(Attribute("PCFA_bar"))->as("min_pcfa_bar"),
-            //                 Max(Attribute("PCFA_bar"))->as("max_pcfa_bar")
-            //             )
-            //             .map(
-            //                 Attribute("variation") = Attribute("max_pcfa_bar") - Attribute("min_pcfa_bar")
-            //             )
-            //             .filter(Attribute("variation") > 0.4)
-            //             .sink(PrintSinkDescriptor::create());
-
-            auto query = Query::from("sncb")
-                            .filter(Attribute("PCFF_bar") >= 0)
+            auto query = Query::from("nrok5")
                             .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)), Seconds(10), Seconds(1)))
-                            .byKey(Attribute("id"))
                             .apply(Min(Attribute("PCFA_bar"))->as(Attribute("PCFA_min_value")),
                                    Max(Attribute("PCFA_bar"))->as(Attribute("PCFA_max_value")))
-                            .map(Attribute("timestamp") = Attribute("sncb$start"))
+                            .map(Attribute("wStart") = Attribute("start"))
+                            .map(Attribute("wEnd") = Attribute("end"))
                             .map(Attribute("variationPCFA") = Attribute("PCFA_max_value") - Attribute("PCFA_min_value"))
                             .filter(Attribute("variationPCFA") > 0.4)
-                            .project(Attribute("timestamp"),
-                                            Attribute("id"),
-                                            Attribute("PCFA_min_value"),
-                                            Attribute("PCFA_max_value"),
-                                            Attribute("variationPCFA"))
-                            //.sink(PrintSinkDescriptor::create())
-                            .sink(FileSinkDescriptor::create("outputFilePath1", "CSV_FORMAT", "APPEND"));
+                            .project(Attribute("wStart"),
+                                     Attribute("wEnd"),
+                                     Attribute("PCFA_min_value"),
+                                     Attribute("PCFA_max_value"),
+                                     Attribute("variationPCFA"))
+                            .sink(FileSinkDescriptor::create("outputFileCFA_nrok5.csv", "CSV_FORMAT", "APPEND"));
 
 
             std::cout << "Query created successfully." << std::endl;

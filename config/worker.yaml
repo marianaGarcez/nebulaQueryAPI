@@ -19,7 +19,7 @@ physicalSources:
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite
-      numberOfTuplesToProducePerBuffer: 36 # Reduced to fit buffer size (40 * 96 bytes < 4096 bytes)
+      numberOfTuplesToProducePerBuffer: 36 
       gatheringInterval: 1000 # milliseconds
 
   - logicalSourceName: highriskArea  # Link to the logical source defined in coordinator.yaml
@@ -38,6 +38,34 @@ physicalSources:
       filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/weatherwithsynccoordinates.csv # Use absolute path
       skipHeader: true
       delimiter: ","
+      numberOfBuffersToProduce: 0 # 0 means infinite
+      numberOfTuplesToProducePerBuffer: 0
+      gatheringInterval: 0 # milliseconds
+  
+  - logicalSourceName: nrok5  # Link to the logical source defined in coordinator.yaml
+    physicalSourceName: nrokCSV # Unique name for this physical source
+    type: CSV_SOURCE          # Type of the source
+    configuration:
+      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/nrok5-VTC1030-NES.csv # Use absolute path
+      skipHeader: true
+      delimiter: ","
+      numberOfBuffersToProduce: 0 # 0 means infinite
+      numberOfTuplesToProducePerBuffer: 0
+      gatheringInterval: 0 # milliseconds
 
+  - logicalSourceName: nrok5Oneday  # Link to the logical source defined in coordinator.yaml
+    physicalSourceName: nrok5Oneday # Unique name for this physical source
+    type: CSV_SOURCE          # Type of the source
+    configuration:
+      filePath: /media/psf/Home/Parallels/nebulaQueryAPI/data/nrok5-oneWorktime_ForNES.csv # Use absolute path
+      skipHeader: true
+      delimiter: ","
+      numberOfBuffersToProduce: 0 # 0 means infinite
+      numberOfTuplesToProducePerBuffer: 0
+      gatheringInterval: 0 # milliseconds
 
 workerId: 2
+
+# Configure the query compiler to use the SLICING window strategy
+queryCompiler:
+  windowingStrategy: SLICING

@@ -46,18 +46,31 @@ int main() {
             // Create a query using the logical source defined in the coordinator config
             const std::string sourceName = "sncb";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
+            // Query query = Query::from(sourceName)
+            //         .filter(
+            //         teintersects(Attribute("longitude", BasicType::FLOAT64),
+            //             Attribute("latitude", BasicType::FLOAT64),
+            //             Attribute("timestamp", BasicType::UINT64)) == 1
+            //         && 
+            //         (Attribute("Code1") != 0 || Attribute("Code2") != 0))
+            //         .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)), 
+            //                             Seconds(30), Seconds(30)))
+            //         .apply(Avg(Attribute("speed")))
+            //         .sink(FileSinkDescriptor::create("query1.csv", "CSV_FORMAT", "APPEND"));
+
+
+            auto ThresholExpression = teintersects(Attribute("longitude", BasicType::FLOAT64),
+                                            Attribute("latitude", BasicType::FLOAT64),
+                                            Attribute("timestamp", BasicType::UINT64)) == 1;
+
             Query query = Query::from(sourceName)
-                    .filter(// Check if train is in maintenance area
-                    teintersects(Attribute("longitude", BasicType::FLOAT64),
-                        Attribute("latitude", BasicType::FLOAT64),
-                        Attribute("timestamp", BasicType::UINT64)) == 1
-                    && 
-                    // Only process records with valid equipment codes
-                    (Attribute("Code1") != 0 || Attribute("Code2") != 0))
-                    .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)), 
-                                        Seconds(30), Seconds(30)))
-                    .apply(Avg(Attribute("speed")))
-                    .sink(PrintSinkDescriptor::create());
+                    .filter((Attribute("Code1") != 0 || Attribute("Code2") != 0))
+                    .window(ThresholdWindow::of(teintersects(Attribute("longitude", BasicType::FLOAT64),
+                                    Attribute("latitude", BasicType::FLOAT64),
+                                    Attribute("timestamp", BasicType::UINT64)) == 1))
+                    .apply(Sum(Attribute("speed", BasicType::UINT64)))
+                    .sink(FileSinkDescriptor::create("query1.csv", "CSV_FORMAT", "APPEND"));
+;
 
                     
             std::cout << "Query created successfully." << std::endl;

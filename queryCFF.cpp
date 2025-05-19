@@ -23,7 +23,6 @@ using namespace NES;
 
 int main() {
     const double slackMeters = 5.0;
-    const double slackDegrees = slackMeters / 111320.0; // 1 degree ≈ 111.32 km
     try {
         const std::string coordinatorIp = "127.0.0.1";
         const int coordinatorPort = 8081;
@@ -46,26 +45,22 @@ int main() {
 
             
             // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "sncb";
+            const std::string sourceName = "nrok5";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
 
 
-
-
-            auto query = Query::from("sncb")
+            auto query = Query::from("nrok5")
                     .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)),Seconds(10), Seconds(1)))
-                    .byKey(Attribute("id"))
                     .apply(Min(Attribute("PCFF_bar"))->as(Attribute("PCFF_min_value_f")),
                         Max(Attribute("PCFF_bar"))->as(Attribute("PCFF_max_value_f")))
-                    .map(Attribute("timestamp") = Attribute("start"))
                     .map(Attribute("variationPCFF_f") = Attribute("PCFF_max_value_f") - Attribute("PCFF_min_value_f"))
-                    .filter(Attribute("variationPCFF_f") < 0.1)
+                    .filter(Attribute("variationPCFF") < 0.1)
                     .project(Attribute("start"),
-                            Attribute("timestamp"),
+                            Attribute("end"),
                             Attribute("PCFF_min_value_f"),
                             Attribute("PCFF_max_value_f"),
                             Attribute("variationPCFF_f"))
-                .sink(PrintSinkDescriptor::create());
+                    .sink(FileSinkDescriptor::create("outputFileCFF_nrok5.csv", "CSV_FORMAT", "APPEND"));
 
                     
             std::cout << "Query created successfully." << std::endl;

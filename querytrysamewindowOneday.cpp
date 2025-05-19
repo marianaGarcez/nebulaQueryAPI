@@ -13,6 +13,7 @@
 #include <Types/SlidingWindow.hpp>
 #include <Types/WindowType.hpp>
 #include <Util/TimeMeasurement.hpp>
+#include <Types/SlidingWindow.hpp>
 #include <Client/ClientException.hpp>
 #include <Client/QueryConfig.hpp>
 #include <Client/RemoteClient.hpp>
@@ -22,6 +23,7 @@ using namespace std;
 using namespace NES;
 
 int main() {
+
     try {
         const std::string coordinatorIp = "127.0.0.1";
         const int coordinatorPort = 8081;
@@ -44,26 +46,29 @@ int main() {
 
             
             // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "sncb";
+            const std::string sourceName = "nrok5Oneday";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
-            Query query = Query::from(sourceName)
-                    .filter(
-                    // Check if train is in a specific geographic area
-                    tpointatstbox(Attribute("longitude", BasicType::FLOAT64),
-                        Attribute("latitude", BasicType::FLOAT64),
-                        Attribute("timestamp", BasicType::UINT64)) == 1
-                    && 
-                    // Only process records with valid speed and pressure
-                    Attribute("speed") > 0 && Attribute("PCFA_bar") > 0
-                    &&
-                    //Show records with the highest noise level
-                    Attribute("speed") * 0.5 + Attribute("PCFA_bar") * 0.5 > 2
-                )
-                .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Milliseconds(500)))
-                .apply(Avg(Attribute("speed")))
-                .sink(FileSinkDescriptor::create("query2.csv", "CSV_FORMAT", "APPEND"));
 
-  
+
+
+            auto query = Query::from("nrok5Oneday")
+                        .window(SlidingWindow::of(EventTime(Attribute("timestamp", BasicType::UINT64)), Seconds(10), Milliseconds(10)))
+                        .apply(Min(Attribute("PCFA_bar"))->as(Attribute("PCFA_min_value")),
+                                Max(Attribute("PCFA_bar"))->as(Attribute("PCFA_max_value")),
+                                Min(Attribute("PCFF_bar"))->as(Attribute("PCFF_min_value")),
+                                Max(Attribute("PCFF_bar"))->as(Attribute("PCFF_max_value")))
+                        .map(Attribute("wStart") = Attribute("start"))
+                        .map(Attribute("wEnd") = Attribute("end"))
+                        .map(Attribute("variationPCFA") = Attribute("PCFA_max_value") - Attribute("PCFA_min_value"))
+                        .map(Attribute("variationPCFF") = Attribute("PCFF_max_value") - Attribute("PCFF_min_value"))
+                        .filter(Attribute("variationPCFA") > 0.4 && Attribute("variationPCFF") <= 0.1)
+                        .project(Attribute("wStart"),
+                                    Attribute("wEnd"),
+                                    Attribute("variationPCFA"),
+                                    Attribute("variationPCFF"))
+                        .sink(FileSinkDescriptor::create("outputsamewindows_7s_10ms_equal.csv", "CSV_FORMAT", "APPEND"));
+
+
             std::cout << "Query created successfully." << std::endl;
             
             // Configure query execution
@@ -77,7 +82,7 @@ int main() {
             
             // Wait for the query to process some data
             std::cout << "Waiting for query to process data (10 seconds)..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::this_thread::sleep_for(std::chrono::seconds(20));
             
             // Check query status
             std::string status = client->getQueryStatus(queryId);
@@ -87,7 +92,8 @@ int main() {
             std::cout << "Stopping query..." << std::endl;
             auto stopResult = client->stopQuery(queryId);
             std::cout << "Query stopped, result: " << (stopResult ? "success" : "failed") << std::endl;
-            
+
+
         } else {
             std::cerr << "Failed to connect to NebulaStream server." << std::endl;
             return 1;

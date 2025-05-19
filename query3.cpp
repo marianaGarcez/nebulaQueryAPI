@@ -46,16 +46,19 @@ int main() {
 
             
             // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "highriskArea";
+            const std::string sourceName = "sncb";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
 
 
-            auto query = Query::from("highriskArea")
+            auto query = Query::from("sncb")
+                            .filter(Attribute("longitude", BasicType::FLOAT64) > 0 && Attribute("latitude", BasicType::FLOAT64) > 0)
                             .filter(tedwithin(Attribute("longitude", BasicType::FLOAT64),
                                         Attribute("latitude", BasicType::FLOAT64),
                                         Attribute("timestamp", BasicType::UINT64)) == 1
                                         && Attribute("timestamp", BasicType::UINT64) > 0)
-                            .sink(PrintSinkDescriptor::create());
+                            .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Milliseconds(500)))
+                            .apply(Avg(Attribute("speed")))
+                            .sink(FileSinkDescriptor::create("query3.csv", "CSV_FORMAT", "APPEND"));    
                     
             std::cout << "Query created successfully." << std::endl;
             

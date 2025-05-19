@@ -87,3 +87,51 @@ logicalSources:
         type: FLOAT64
       - name: gps_lon
         type: FLOAT64
+
+  - logicalSourceName: "nrok5"
+    fields:
+      - name: id
+        type: UINT64
+      - name: timestamp
+        type: UINT64
+      - name: PCFA_bar
+        type: FLOAT64
+      - name: PCFF_bar
+        type: FLOAT64
+      - name: PCF1_bar
+        type: FLOAT64
+      - name: PCF2_bar
+        type: FLOAT64
+      - name: T1_bar
+        type: FLOAT64
+      - name: T2_bar
+        type: FLOAT64
+      - name: Code1
+        type: UINT64
+      - name: Code2
+        type: UINT64
+      - name: time
+        type: UINT64
+
+  - logicalSourceName: "nrok5Oneday"
+    fields:
+      - name: id
+        type: UINT64
+      - name: timestamp
+        type: UINT64
+      - name: PCFA_bar
+        type: FLOAT64
+      - name: PCFF_bar
+        type: FLOAT64
+      - name: PCF1_bar
+        type: FLOAT64
+      - name: PCF2_bar
+        type: FLOAT64
+      - name: T1_bar
+        type: FLOAT64
+      - name: T2_bar
+        type: FLOAT64
+      - name: Code1
+        type: UINT64
+      - name: Code2
+        type: UINT64

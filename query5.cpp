@@ -52,8 +52,7 @@ int main() {
 
 
             auto query = Query::from("sncb")
-                .map(
-                        Attribute("passenger_count") = 
+                .map(Attribute("passenger_count") = 
                             (Attribute("T1_bar") + Attribute("T2_bar") +
                             Attribute("PCF1_bar") + Attribute("PCF2_bar")) / 4.0
                     )
@@ -66,7 +65,7 @@ int main() {
                 .map( Attribute("adjusted_light") = 80.0)
                 .window(TumblingWindow::of(EventTime(Attribute("timestamp")), Milliseconds(500)))
                 .apply(Avg(Attribute("speed")))
-                .sink(PrintSinkDescriptor::create());
+                .sink(FileSinkDescriptor::create("query5.csv", "CSV_FORMAT", "APPEND"));
 
                     
             std::cout << "Query created successfully." << std::endl;

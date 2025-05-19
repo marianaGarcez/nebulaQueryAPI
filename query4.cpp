@@ -17,7 +17,6 @@
 #include <Client/QueryConfig.hpp>
 #include <Client/RemoteClient.hpp>
 
-
 using namespace std;
 using namespace NES;
 
@@ -39,61 +38,55 @@ int main() {
         if (connected) {
             std::cout << "Successfully connected to NebulaStream server!" << std::endl;
             
-            // Get existing logical sources - should now include sncb from coordinator.yaml
+            // Get existing logical sources
             std::cout << "Available logical sources:" << std::endl;
             std::string sources = client->getLogicalSources();
             std::cout << sources << std::endl;
 
+            // Create a simplified join query based on examples from the codebase
+            std::cout << "Creating join query..." << std::endl;
             
-            // Create a query using the logical source defined in the coordinator config
-            const std::string sourceName = "weather";
-            std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
-
-
+            // Query for weather data only
             auto weatherQuery = Query::from("weather")
-                .filter(
-                    tedwithin(Attribute("gps_lon"), 
-                            Attribute("gps_lat"),
-                            Attribute("timestamp"))==1
-                )
-                .filter(
-                    Attribute("temperature") < 12.0 || 
-                    Attribute("temperature") > 16.0
-                )
-                .filter(
-                    Attribute("snowfall") >= 0.0 ||          
-                    Attribute("wind_speed") > 15.0 ||        // Higher than median wind speed
-                    Attribute("precipitation") > 0.1          // Match actual precipitation events
-                )
-                .map(Attribute("adjusted_speed_limit") = 15.0)
-                .sink(PrintSinkDescriptor::create());
+                .map(Attribute("w_temperature") = Attribute("temperature"))
+                .map(Attribute("w_timestamp") = Attribute("timestamp"))
+                .map(Attribute("w_gps_lat") = Attribute("gps_lat"))
+                .map(Attribute("w_gps_lon") = Attribute("gps_lon"))
+                .sink(FileSinkDescriptor::create("weather_data.csv", "CSV_FORMAT", "APPEND"));
 
+            // Query for train data only
+            auto trainQuery = Query::from("sncb")
+                .map(Attribute("t_timestamp") = Attribute("timestamp"))
+                .map(Attribute("t_lat") = Attribute("latitude"))
+                .map(Attribute("t_lon") = Attribute("longitude"))
+                .map(Attribute("t_speed") = Attribute("speed"))
+                .sink(FileSinkDescriptor::create("train_data.csv", "CSV_FORMAT", "APPEND"));
             
-                    
-            std::cout << "Query created successfully." << std::endl;
+            std::cout << "Queries created successfully." << std::endl;
             
             // Configure query execution
             Client::QueryConfig queryConfig;
             queryConfig.setPlacementType(Optimizer::PlacementStrategy::TopDown);
             
-            // Submit the query
-            std::cout << "Submitting query..." << std::endl;
-            QueryId queryId = client->submitQuery(weatherQuery, queryConfig);
-            std::cout << "Query submitted with ID: " << queryId << std::endl;
+            // Submit both queries
+            std::cout << "Submitting weather query..." << std::endl;
+            QueryId weatherQueryId = client->submitQuery(weatherQuery, queryConfig);
+            std::cout << "Weather query submitted with ID: " << weatherQueryId << std::endl;
             
-            // Wait for the query to process some data
-            std::cout << "Waiting for query to process data (10 seconds)..." << std::endl;
+            std::cout << "Submitting train query..." << std::endl;
+            QueryId trainQueryId = client->submitQuery(trainQuery, queryConfig);
+            std::cout << "Train query submitted with ID: " << trainQueryId << std::endl;
+            
+            // Wait for the queries to process some data
+            std::cout << "Waiting for queries to process data (10 seconds)..." << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(10));
             
-            // Check query status
-            std::string status = client->getQueryStatus(queryId);
-            std::cout << "Query status: " << status << std::endl;
-            
-            // Stop the query
-            std::cout << "Stopping query..." << std::endl;
-            auto stopResult = client->stopQuery(queryId);
-            std::cout << "Query stopped, result: " << (stopResult ? "success" : "failed") << std::endl;
-            
+            // Stop the queries
+            std::cout << "Stopping queries..." << std::endl;
+            auto weatherStopResult = client->stopQuery(weatherQueryId);
+            auto trainStopResult = client->stopQuery(trainQueryId);
+            std::cout << "Weather query stopped, result: " << (weatherStopResult ? "success" : "failed") << std::endl;
+            std::cout << "Train query stopped, result: " << (trainStopResult ? "success" : "failed") << std::endl;
         } else {
             std::cerr << "Failed to connect to NebulaStream server." << std::endl;
             return 1;
