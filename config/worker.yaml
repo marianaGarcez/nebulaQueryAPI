@@ -4,8 +4,8 @@
 logLevel: LOG_INFO
 
 # Network settings
-coordinatorHost: 192.168.55.100  # IP of the coordinator in Parallels VM
-localWorkerHost: 192.168.55.1    # IP of the worker (NVIDIA device)
+coordinatorHost: 127.0.0.1  # IP of the coordinator in Parallels VM
+localWorkerHost: 127.0.0.1    # IP of the worker (NVIDIA device)
 rpcPort: 4001                    # Port for RPC communication with coordinator
 dataPort: 4002                   # Port for data transfer
 

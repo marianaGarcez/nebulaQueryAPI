@@ -55,18 +55,23 @@ add_executable(QueryTest query.cpp)
 # Client executable for query1.cpp
 add_executable(Query1 query1.cpp)
 
+# Client executable for query1_performance.cpp
+add_executable(Query1_performance query1_performance.cpp)
+
+
 # Client executable for query2.cpp
-add_executable(Query2 query2.cpp)   
+add_executable(Query2 query2.cpp)
 
 # Client executable for query3.cpp
 add_executable(Query3 query3.cpp)
 
+
 # Client executable for query4.cpp
 add_executable(Query4 query4.cpp)
 
-
 # Client executable for query5.cpp
 add_executable(Query5 query5.cpp)
+
 
 # Client executable for query6.cpp
 add_executable(Query6 query6.cpp)
@@ -109,6 +114,15 @@ target_link_libraries(Query1 PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
+target_link_libraries(Query1_performance PRIVATE
+    nes-client
+    nes-operators
+    nes-common
+    nes-configurations
+    nes-window-types
+    ${CMAKE_THREAD_LIBS_INIT}
+)
+
 
 # Link libraries for the third client
 target_link_libraries(Query2 PRIVATE
@@ -129,6 +143,7 @@ target_link_libraries(Query3 PRIVATE
     nes-window-types
     ${CMAKE_THREAD_LIBS_INIT}
 )
+
 
 
 target_link_libraries(Query4 PRIVATE
@@ -154,6 +169,7 @@ target_link_libraries(Query5 PRIVATE
     nes-window-types
     ${CMAKE_THREAD_LIBS_INIT}
 )
+
 
 target_link_libraries(Query6 PRIVATE
     nes-client
@@ -217,6 +233,8 @@ target_compile_definitions(QueryTest PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 # Compiler definitions for the second client
 target_compile_definitions(Query1 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 
+# Compiler definitions for the second client
+target_compile_definitions(Query1_performance PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 
 # Compiler definitions for the third client
 target_compile_definitions(Query2 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
@@ -232,6 +250,7 @@ target_compile_definitions(Query4 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
 
 # Compiler definitions for the sixth client
 target_compile_definitions(Query5 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)
+
 
 # Compiler definitions for the seventh client
 target_compile_definitions(Query6 PRIVATE NES_COMPILE_TIME_LOG_LEVEL=0)

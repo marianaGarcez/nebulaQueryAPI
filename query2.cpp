@@ -23,7 +23,7 @@ using namespace NES;
 
 int main() {
     try {
-        const std::string coordinatorIp = "192.168.55.100";
+        const std::string coordinatorIp = "127.0.0.1";
         const int coordinatorPort = 8081;
         
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;

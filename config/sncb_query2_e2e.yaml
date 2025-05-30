@@ -1,0 +1,43 @@
+# ~~~ SNCB Query2 E2E Benchmark Configuration ~~~
+
+benchmarkName: SNCBQuery2Benchmark
+outputFile: sncb_query2_e2e_results.csv
+
+# Parameter that are changed per run with comma separated list
+numberOfWorkerThreads: 1,2
+numberOfSources: 1
+
+# engine configuration parameter - VM optimized
+numberOfBuffersInGlobalBufferManager: 1024
+numberOfBuffersPerPipeline: 128
+numberOfBuffersInSourceLocalBufferPool: 128
+bufferSizeInBytes: 4096
+
+logicalSources:
+  - name: sncb
+    type: SNCB
+    csvPath: /media/psf/Home/Parallels/nebulaQueryAPI/data/selected_columns_df.csv
+    minSpeed: 0
+    maxSpeed: 120
+    minLongitude: 4.0    # Belgium longitude range
+    maxLongitude: 6.5
+    minLatitude: 49.5    # Belgium latitude range  
+    maxLatitude: 51.5
+
+# configure data source - VM optimized
+numberOfPreAllocatedBuffer: 1000
+dataProvider: Internal
+dataProviderMode: ZeroCopy
+
+# Query2: Filter by location and apply tumbling window with average
+query: 'Query::from("sncb").filter(Attribute("longitude") > 4.5 && Attribute("latitude") > 50.0).filter(tpointatstbox(Attribute("longitude"),Attribute("latitude"),Attribute("timestamp")) == 1).window(TumblingWindow::of(EventTime(Attribute("timestamp")), Milliseconds(500))).apply(Avg(Attribute("speed"))).sink(FileSinkDescriptor::create("sncb_query2_e2e_output.csv", "CSV_FORMAT", "APPEND"));'
+
+gatheringValues: 10000
+
+# benchmark internal parameter - VM optimized
+numberOfBuffersToProduce: 1000000
+scalability: scale-up
+logLevel: LOG_INFO
+experimentMeasureIntervalInSeconds: 1
+startupSleepIntervalInSeconds: 2
+numberOfMeasurementsToCollect: 5

@@ -1,3 +1,4 @@
+#include <concepts>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -16,20 +17,22 @@
 #include <Client/ClientException.hpp>
 #include <Client/QueryConfig.hpp>
 #include <Client/RemoteClient.hpp>
-
+#include <Operators/LogicalOperators/Sinks/FileSinkDescriptor.hpp>
 
 using namespace std;
 using namespace NES;
+using namespace NES::Client;
+using namespace NES::Optimizer;
 
 int main() {
     try {
-        const std::string coordinatorIp = "192.168.55.100";
+        const std::string coordinatorIp = "192.168.0.238";
         const int coordinatorPort = 8081;
         
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;
         
         // Create a client to test connection to the NebulaStream server
-        auto client = std::make_shared<Client::RemoteClient>(coordinatorIp, coordinatorPort, std::chrono::seconds(20), true);
+        auto client = std::make_shared<RemoteClient>(coordinatorIp, coordinatorPort, std::chrono::seconds(20), true);
         bool connected = client->testConnection();
         
         std::cout << "Connection test: " << (connected ? "successful" : "failed") << std::endl;
@@ -47,24 +50,16 @@ int main() {
             const std::string sourceName = "sncb";
             std::cout << "Creating query for source: '" << sourceName << "'..." << std::endl;
 
-
-            auto ThresholExpression = teintersects(Attribute("longitude", BasicType::FLOAT64),
-                                            Attribute("latitude", BasicType::FLOAT64),
-                                            Attribute("timestamp", BasicType::UINT64)) == 1;
-
+            // Use a file sink to write results to a local file
             Query query = Query::from(sourceName)
-                    // .window(ThresholdWindow::of(teintersects(Attribute("longitude", BasicType::FLOAT64),
-                    //                 Attribute("latitude", BasicType::FLOAT64),
-                    //                 Attribute("timestamp", BasicType::UINT64)) == 1))
-                    // .apply(Sum(Attribute("speed", BasicType::UINT64)))
                     .filter(Attribute("speed") > 100)
-                    .sink(FileSinkDescriptor::create("queryTest.csv", "CSV_FORMAT", "APPEND"));
-;
+                    .sink(FileSinkDescriptor::create("query_output.csv", "CSV_FORMAT", "APPEND"));
+            
             std::cout << "Query created successfully." << std::endl;
             
             // Configure query execution
-            Client::QueryConfig queryConfig;
-            queryConfig.setPlacementType(Optimizer::PlacementStrategy::TopDown);
+            QueryConfig queryConfig;
+            queryConfig.setPlacementType(PlacementStrategy::BottomUp);
             
             // Submit the query
             std::cout << "Submitting query..." << std::endl;
@@ -90,7 +85,7 @@ int main() {
         }
         
         return 0;
-    } catch (const Client::ClientException& e) {
+    } catch (const ClientException& e) {
         std::cerr << "Client Exception: " << e.what() << std::endl;
         return 1;
     } catch (const std::exception& e) {

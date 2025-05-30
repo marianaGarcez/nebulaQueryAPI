@@ -1,0 +1,44 @@
+# ~~~ SNCB Query1 Geospatial E2E Benchmark Configuration ~~~
+
+benchmarkName: SNCBQuery1GeospatialBenchmark
+outputFile: sncb_query1_e2e_results.csv
+
+# Parameter that are changed per run with comma separated list
+numberOfWorkerThreads: 1,2
+numberOfSources: 1
+
+# engine configuration parameter - VM optimized
+numberOfBuffersInGlobalBufferManager: 1024
+numberOfBuffersPerPipeline: 128
+numberOfBuffersInSourceLocalBufferPool: 128
+bufferSizeInBytes: 4096
+
+logicalSources:
+  - name: sncb
+    type: SNCB
+    csvPath: /media/psf/Home/Parallels/nebulaQueryAPI/data/selected_columns_df.csv
+    minSpeed: 0
+    maxSpeed: 120
+    minLongitude: 4.0    # Belgium longitude range
+    maxLongitude: 6.5
+    minLatitude: 49.5    # Belgium latitude range  
+    maxLatitude: 51.5
+
+# configure data source - VM optimized
+numberOfPreAllocatedBuffer: 1000
+dataProvider: Internal
+dataProviderMode: ZeroCopy
+
+# Query1: Filter by error codes and apply threshold window with sum aggregation
+query: 'Query::from("sncb").filter((Attribute("Code1") != 0 || Attribute("Code2") != 0)).window(ThresholdWindow::of(teintersects(Attribute("longitude"),Attribute("latitude"),Attribute("timestamp")) == 1)).apply(Sum(Attribute("speed"))).sink(FileSinkDescriptor::create("sncb_query1_e2e_output_th.csv", "CSV_FORMAT", "APPEND"));'
+
+
+gatheringValues: 10000
+
+# benchmark internal parameter - VM optimized
+numberOfBuffersToProduce: 1000000
+scalability: scale-up
+logLevel: LOG_DEBUG
+experimentMeasureIntervalInSeconds: 1
+startupSleepIntervalInSeconds: 2
+numberOfMeasurementsToCollect: 5

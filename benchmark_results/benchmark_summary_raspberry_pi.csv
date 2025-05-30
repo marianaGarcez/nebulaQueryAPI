@@ -1,0 +1,5 @@
+Platform,Query,Execution Time (s),Max Memory (MB),Avg Memory (MB),Throughput (msgs/s)
+raspberry_pi,QueryTest,10.00,23.55,22.15,N/A
+raspberry_pi,Query1,10.01,23.67,22.48,N/A
+raspberry_pi,Query1-NoMEOS,10.09,23.67,22.25,N/A
+raspberry_pi,Query2,10.02,23.50,22.29,N/A

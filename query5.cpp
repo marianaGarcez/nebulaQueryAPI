@@ -25,7 +25,7 @@ int main() {
     const double slackMeters = 5.0;
     const double slackDegrees = slackMeters / 111320.0; // 1 degree ≈ 111.32 km
     try {
-        const std::string coordinatorIp = "192.168.55.100";
+        const std::string coordinatorIp = "192.168.0.238";
         const int coordinatorPort = 8081;
         
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;
