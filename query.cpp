@@ -23,7 +23,7 @@ using namespace NES;
 
 int main() {
     try {
-        const std::string coordinatorIp = "192.168.55.100";
+        const std::string coordinatorIp = "192.168.0.238";
         const int coordinatorPort = 8081;
         
         std::cout << "Connecting to NebulaStream server at " << coordinatorIp << ":" << coordinatorPort << "..." << std::endl;
@@ -57,9 +57,9 @@ int main() {
                     //                 Attribute("latitude", BasicType::FLOAT64),
                     //                 Attribute("timestamp", BasicType::UINT64)) == 1))
                     // .apply(Sum(Attribute("speed", BasicType::UINT64)))
-                    .filter(Attribute("speed") > 100)
-                    .sink(FileSinkDescriptor::create("queryTest.csv", "CSV_FORMAT", "APPEND"));
-;
+                    .filter(Attribute("speed") > 10)
+                    .sink(FileSinkDescriptor::create("query_output.csv", "CSV_FORMAT", "APPEND"));
+
             std::cout << "Query created successfully." << std::endl;
             
             // Configure query execution

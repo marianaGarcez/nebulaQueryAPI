@@ -4,8 +4,8 @@
 logLevel: LOG_INFO
 
 # Network settings
-coordinatorHost: 192.168.55.100  # IP of the coordinator in Parallels VM
-localWorkerHost: 192.168.55.1    # IP of the worker (NVIDIA device)
+coordinatorHost: 192.168.0.238   # IP of the coordinator in Parallels VM
+localWorkerHost: 192.168.0.153    # IP of the worker (NVIDIA device)
 rpcPort: 4001                    # Port for RPC communication with coordinator
 dataPort: 4002                   # Port for data transfer
 
@@ -19,8 +19,8 @@ physicalSources:
       skipHeader: true
       delimiter: ","
       numberOfBuffersToProduce: 0 # 0 means infinite
-      numberOfTuplesToProducePerBuffer: 36 
-      gatheringInterval: 1000 # milliseconds
+      numberOfTuplesToProducePerBuffer: 0 
+      gatheringInterval: 0  # milliseconds
 
   - logicalSourceName: highriskArea  # Link to the logical source defined in coordinator.yaml
     physicalSourceName: highriskAreaCSV # Unique name for this physical source

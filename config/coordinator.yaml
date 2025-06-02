@@ -1,18 +1,20 @@
 # Coordinator Configuration
 
 # Log level: LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR
-logLevel: LOG_INFO
+logLevel: LOG_DEBUG
 
 # Network settings
 restIp: 0.0.0.0  # Listen on all interfaces for REST API
-coordinatorHost: 192.168.55.100 # Hostname for internal communication (VM IP)
-rpcPort: 4000      # Port for RPC communication with workers (default)
-restPort: 8081     # Port for REST API (default)
+coordinatorHost: 192.168.0.238 # Hostname for internal communication (VM IP)
+rpcPort: 4003
+# Port for RPC communication with workers (default)
+restPort: 8081     # Port for REST API (default) 
 
-worker:
-  # Hostname for the internal worker run by the coordinator
-  localWorkerHost: 127.0.0.1
 
+
+
+# Set a single logical source with multiple fields in the schema
+# Valid types are: INT8, UINT8, INT16, UINT16, INT32, UINT32, INT64, FLOAT32, UINT64, FLOAT64, BOOLEAN, CHAR
 # Logical source definitions
 logicalSources:
   - logicalSourceName: "sncb"

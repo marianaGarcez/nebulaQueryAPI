@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Threads REQUIRED)
 
 # Set NebulaStream paths - adjust these to match your installation
-set(NEBULASTREAM_ROOT "/media/psf/Home/Parallels/nebulastream-legacy")
+set(NEBULASTREAM_ROOT "/home/emma/nebulastream-private/")
 set(NEBULASTREAM_BUILD "${NEBULASTREAM_ROOT}/build")
 
 # Include directories
@@ -142,7 +142,6 @@ target_link_libraries(Query4 PRIVATE
     nes-execution
     nes-catalogs
     nes-runtime
-    nes-benchmark
     ${CMAKE_THREAD_LIBS_INIT}
 )
 
